@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEON NEXUS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --blu-neon: #00d2ff;
+            --rosso-neon: #ff0055;
+            --viola-neon: #bc13fe;
+            --giallo-neon: #f0ff00;
+            --sfondo-dark: #0a0b10;
+            --testo-chiaro: #e0e0e0;
+            --shadow-blu: 0 0 20px rgba(0, 210, 255, 0.7);
+            --shadow-rosso: 0 0 20px rgba(255, 0, 85, 0.7);
+        }
+
+        /* --- SCROLLBAR LATERALE --- */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: var(--sfondo-dark); }
+        ::-webkit-scrollbar-thumb { 
+            background: var(--blu-neon); 
+            border-radius: 5px; 
+            box-shadow: 0 0 10px var(--blu-neon);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body, html {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: var(--sfondo-dark);
+            color: var(--testo-chiaro);
+            width: 100vw;
+            overflow-y: auto; 
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+            z-index: -1;
+        }
+
+        @keyframes glow-pulse {
+            0%, 100% { text-shadow: 0 0 10px var(--blu-neon), 0 0 20px var(--blu-neon); }
+            50% { text-shadow: 0 0 20px var(--blu-neon), 0 0 40px var(--blu-neon); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        #menu-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            min-height: 100vh;
+            width: 100vw;
+            text-align: center;
+            padding: 60px 20px;
+            opacity: 1;
+            transition: opacity 0.6s ease;
+        }
+
+        #menu-screen.hidden { display: none; }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(3rem, 12vw, 6rem);
+            margin-bottom: 3rem; /* Aumentato il margine dato che manca il sottotitolo */
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            color: var(--blu-neon);
+            animation: glow-pulse 2s infinite, float 3s ease-in-out infinite;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            width: 100%;
+        }
+
+        .game-card {
+            background: rgba(26, 28, 44, 0.8);
+            border: 3px solid var(--blu-neon);
+            border-radius: 15px;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 210, 255, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .game-card:hover::before { left: 100%; }
+
+        .game-card:hover {
+            transform: translateY(-15px) scale(1.05);
+            border-color: var(--rosso-neon);
+            box-shadow: 0 0 40px rgba(255, 0, 85, 0.6), 0 15px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 10px var(--blu-neon));
+            transition: all 0.3s;
+        }
+
+        .game-card:hover .game-icon {
+            filter: drop-shadow(0 0 20px var(--rosso-neon));
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        .game-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .game-desc {
+            font-size: 0.95rem;
+            color: #aaa;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .btn-play {
+            padding: 12px 40px;
+            background: transparent;
+            color: var(--blu-neon);
+            border: 2px solid var(--blu-neon);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+        }
+
+        .game-card:hover .btn-play {
+            background: var(--blu-neon);
+            color: #000;
+            box-shadow: var(--shadow-blu);
+        }
+
+        #game-container {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            top: 0; left: 0;
+            z-index: 2000;
+            background-color: var(--sfondo-dark);
+        }
+
+        #game-container.active { display: flex; flex-direction: column; }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(0, 0, 0, 0.8);
+            border-bottom: 2px solid var(--blu-neon);
+        }
+
+        #iframe-container { flex: 1; width: 100%; }
+        iframe { width: 100%; height: 100%; border: none; }
+
+        .btn-back {
+            padding: 10px 30px;
+            background: transparent;
+            color: var(--rosso-neon);
+            border: 2px solid var(--rosso-neon);
+            font-family: 'Orbitron', sans-serif;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+        }
+
+        .btn-back:hover, .btn-back:active {
+            background: var(--rosso-neon);
+            color: #000;
+            box-shadow: var(--shadow-rosso);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="menu-screen">
+        <h1>NEON NEXUS</h1>
+
+        <div class="games-grid">
+            <div class="game-card" onclick="playGame('tris', '🎯 NEON TRIS')">
+                <div class="game-icon">🎯</div>
+                <div class="game-title">TRIS</div>
+                <div class="game-desc">Il classico gioco del tris in versione NEON con intelligenza artificiale</div>
+                <button class="btn-play">PLAY</button>
+            </div>
+
+            <div class="game-card" onclick="playGame('forza4', '🔴 FORZA 4')">
+                <div class="game-icon">🔴</div>
+                <div class="game-title">FORZA 4</div>
+                <div class="game-desc">Allinea 4 pedine in una battaglia tattica contro il bot</div>
+                <button class="btn-play">PLAY</button>
+            </div>
+
+            <div class="game-card" onclick="playGame('oca', '🦆 NEON GOOSE')">
+                <div class="game-icon">🦆</div>
+                <div class="game-title">GIOCO DELL'OCA</div>
+                <div class="game-desc">Lanciati dai dadi e salta verso la vittoria in questa corsa digitale</div>
+                <button class="btn-play">PLAY</button>
+            </div>
+
+            <div class="game-card" onclick="playGame('surgery', '🏥 CYBER SURGERY')">
+                <div class="game-icon">🏥</div>
+                <div class="game-title">ALLEGRO CHIRURGO</div>
+                <div class="game-desc">Estrai i chip senza toccare i bordi metallici - concentrazione al massimo!</div>
+                <button class="btn-play">PLAY</button>
+            </div>
+
+            <div class="game-card" onclick="playGame('memory', '🧠 NEON MEMORY')">
+                <div class="game-icon">🧠</div>
+                <div class="game-title">MEMORY</div>
+                <div class="game-desc">Abbina le coppie di simboli neon - sfida la tua memoria cyber</div>
+                <button class="btn-play">PLAY</button>
+            </div>
+
+            <div class="game-card" onclick="playGame('drive', '🚗 NEON DRIVE')">
+                <div class="game-icon">🚗</div>
+                <div class="game-title">NEON DRIVE</div>
+                <div class="game-desc">Guida la tua auto neon evitando ostacoli e raccogliendo monete</div>
+                <button class="btn-play">PLAY</button>
+            </div>
+
+            <div class="game-card" onclick="playGame('bottleflip', '🍾 BOTTLE FLIP')">
+                <div class="game-icon">🍾</div>
+                <div class="game-title">BOTTLE FLIP</div>
+                <div class="game-desc">Fai saltare la bottiglia da piattaforma a piattaforma con fisica realistica</div>
+                <button class="btn-play">PLAY</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-container">
+        <div class="game-header">
+            <h2 id="game-title" style="color:var(--blu-neon); font-family:'Orbitron';">GIOCO</h2>
+            <button class="btn-back" onclick="backToMenu()">TORNA AL MENÙ</button>
+        </div>
+        <div id="iframe-container"></div>
+    </div>
+
+    <script>
+        const gamesURLs = {
+            tris: 'https://raffedits.github.io/tris2/',
+            forza4: 'https://raffedits.github.io/Forza-4/',
+            oca: 'https://raffedits.github.io/gioco-dell-oca/',
+            surgery: 'https://raffedits.github.io/allegro-chirurgo/',
+            memory: 'https://raffedits.github.io/memory/',
+            bottleflip: 'https://raffedits.github.io/bottle-flip/',
+            drive: 'https://raffedits.github.io/Neon-drive/'
+        };
+
+        function playGame(id, title) {
+            document.getElementById('menu-screen').classList.add('hidden');
+            document.getElementById('game-container').classList.add('active');
+            document.getElementById('game-title').textContent = title;
+            document.getElementById('iframe-container').innerHTML = `<iframe src="${gamesURLs[id]}"></iframe>`;
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function backToMenu() {
+            document.getElementById('game-container').classList.remove('active');
+            document.getElementById('menu-screen').classList.remove('hidden');
+            document.getElementById('iframe-container').innerHTML = '';
+            document.body.style.overflow = 'auto'; 
+        }
+    </script>
+</body>
+</html>
